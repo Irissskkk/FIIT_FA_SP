@@ -31,7 +31,9 @@ TEST(allocatorGlobalHeapTests, test2)
     auto first_block = reinterpret_cast<char *>(allocator_instance->allocate(sizeof(char) * 11));
     
     strcpy(first_block, "0123456789");
-    
+
+    //printf("total string = %s\n", first_block);
+
     allocator_instance->deallocate(first_block, 1);
 }
 

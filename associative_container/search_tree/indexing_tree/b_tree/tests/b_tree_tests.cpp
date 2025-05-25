@@ -1,32 +1,27 @@
-#include "gtest/gtest.h"
+#include <b_tree.h>
+#include <client_logger_builder.h>
 
 #include <list>
 #include <random>
 #include <vector>
-#include <b_tree.h>
-#include <client_logger_builder.h>
 
+#include "gtest/gtest.h"
 
 
 template<typename tkey, typename tvalue>
 bool compare_results(
-    std::vector<typename B_tree<tkey, tvalue>::value_type> const &expected,
-    std::vector<typename B_tree<tkey, tvalue>::value_type> const &actual)
-{
-    if (expected.size() != actual.size())
-    {
+        std::vector<typename B_tree<tkey, tvalue>::value_type> const &expected,
+        std::vector<typename B_tree<tkey, tvalue>::value_type> const &actual) {
+    if (expected.size() != actual.size()) {
         return false;
     }
 
-    for (size_t i = 0; i < expected.size(); ++i)
-    {
-        if (expected[i].key != actual[i].key)
-        {
+    for (size_t i = 0; i < expected.size(); ++i) {
+        if (expected[i].key != actual[i].key) {
             return false;
         }
 
-        if (expected[i].value != actual[i].value)
-        {
+        if (expected[i].value != actual[i].value) {
             return false;
         }
     }
@@ -36,18 +31,14 @@ bool compare_results(
 
 template<typename tvalue>
 bool compare_obtain_results(
-    std::vector<tvalue> const &expected,
-    std::vector<tvalue> const &actual)
-{
-    if (expected.size() != actual.size())
-    {
+        std::vector<tvalue> const &expected,
+        std::vector<tvalue> const &actual) {
+    if (expected.size() != actual.size()) {
         return false;
     }
 
-    for (size_t i = 0; i < expected.size(); ++i)
-    {
-        if (expected[i] != actual[i])
-        {
+    for (size_t i = 0; i < expected.size(); ++i) {
+        if (expected[i] != actual[i]) {
             return false;
         }
     }
@@ -56,19 +47,16 @@ bool compare_obtain_results(
 }
 
 logger *create_logger(
-    std::vector<std::pair<std::string, logger::severity>> const &output_file_streams_setup,
-    bool use_console_stream = true,
-    logger::severity console_stream_severity = logger::severity::debug)
-{
+        std::vector<std::pair<std::string, logger::severity>> const &output_file_streams_setup,
+        bool use_console_stream = true,
+        logger::severity console_stream_severity = logger::severity::debug) {
     std::unique_ptr<logger_builder> builder(new client_logger_builder());
 
-    if (use_console_stream)
-    {
+    if (use_console_stream) {
         builder->add_console_stream(console_stream_severity);
     }
 
-    for (auto &output_file_stream_setup: output_file_streams_setup)
-    {
+    for (auto &output_file_stream_setup: output_file_streams_setup) {
         builder->add_file_stream(output_file_stream_setup.first, output_file_stream_setup.second);
     }
 
@@ -77,9 +65,8 @@ logger *create_logger(
     return built_logger;
 }
 
-template <typename tkey, typename tvalue>
-struct test_data
-{
+template<typename tkey, typename tvalue>
+struct test_data {
     tkey key;
     tvalue value;
     size_t depth, index;
@@ -89,18 +76,15 @@ struct test_data
 
 template<typename tkey, typename tvalue, typename comp, size_t t>
 bool infix_const_iterator_test(
-    B_tree<tkey, tvalue, comp, t> const &tree,
-    std::vector<test_data<tkey, tvalue>> const &expected_result)
-{
+        B_tree<tkey, tvalue, comp, t> const &tree,
+        std::vector<test_data<tkey, tvalue>> const &expected_result) {
     auto end_infix = tree.cend();
     auto it = tree.cbegin();
 
-    for (auto const &item: expected_result)
-    {
+    for (auto const &item: expected_result) {
         auto data = *it;
 
-        if (it->first != item.key || it->second != item.value || it.depth() != item.depth || it.index() != item.index)
-        {
+        if (it->first != item.key || it->second != item.value || it.depth() != item.depth || it.index() != item.index) {
             return false;
         }
 
@@ -110,19 +94,16 @@ bool infix_const_iterator_test(
     return true;
 }
 
-TEST(bTreePositiveTests, test0)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-    {
-        { "b_tree_tests_logs.txt", logger::severity::trace }
-    }));
+TEST(bTreePositiveTests, test0) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test0 started");
 
     std::vector<test_data<int, std::string>> expected_result =
-    {
+            {
 
-    };
+            };
 
     B_tree<int, std::string, std::less<int>, 1024> tree(std::less<int>(), nullptr, logger.get());
 
@@ -131,24 +112,20 @@ TEST(bTreePositiveTests, test0)
     logger->trace("bTreePositiveTests.test0 finished");
 }
 
-TEST(bTreePositiveTests, test1)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreePositiveTests, test1) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test1 started");
 
     std::vector<test_data<int, std::string>> expected_result =
-    {
-        test_data<int, std::string>(1, 0, 1, "a"),
-        test_data<int, std::string>(1, 1, 2, "b"),
-        test_data<int, std::string>(1, 2, 3, "d"),
-        test_data<int, std::string>(0, 0, 4, "e"),
-        test_data<int, std::string>(1, 0, 15, "c"),
-        test_data<int, std::string>(1, 1, 27, "f")
-    };
+            {
+                    test_data<int, std::string>(1, 0, 1, "a"),
+                    test_data<int, std::string>(1, 1, 2, "b"),
+                    test_data<int, std::string>(1, 2, 3, "d"),
+                    test_data<int, std::string>(0, 0, 4, "e"),
+                    test_data<int, std::string>(1, 0, 15, "c"),
+                    test_data<int, std::string>(1, 1, 27, "f")};
 
     B_tree<int, std::string, std::less<int>, 3> tree(std::less<int>(), nullptr, logger.get());
 
@@ -164,30 +141,26 @@ TEST(bTreePositiveTests, test1)
     logger->trace("bTreePositiveTests.test1 finished");
 }
 
-TEST(bTreePositiveTests, test2)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreePositiveTests, test2) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test2 started");
 
     std::vector<test_data<int, std::string>> expected_result =
-    {
-        test_data<int, std::string>(1, 0, 1, "a"),
-        test_data<int, std::string>(1, 1, 2, "b"),
-        test_data<int, std::string>(1, 2, 3, "d"),
-        test_data<int, std::string>(1, 3, 4, "e"),
-        test_data<int, std::string>(1, 4, 15, "c"),
-        test_data<int, std::string>(0, 0, 24, "g"),
-        test_data<int, std::string>(1, 0, 45, "k"),
-        test_data<int, std::string>(1, 1, 100, "f"),
-        test_data<int, std::string>(1, 2, 101, "j"),
-        test_data<int, std::string>(1, 3, 193, "l"),
-        test_data<int, std::string>(1, 4, 456, "h"),
-        test_data<int, std::string>(1, 5, 534, "m")
-    };
+            {
+                    test_data<int, std::string>(1, 0, 1, "a"),
+                    test_data<int, std::string>(1, 1, 2, "b"),
+                    test_data<int, std::string>(1, 2, 3, "d"),
+                    test_data<int, std::string>(1, 3, 4, "e"),
+                    test_data<int, std::string>(1, 4, 15, "c"),
+                    test_data<int, std::string>(0, 0, 24, "g"),
+                    test_data<int, std::string>(1, 0, 45, "k"),
+                    test_data<int, std::string>(1, 1, 100, "f"),
+                    test_data<int, std::string>(1, 2, 101, "j"),
+                    test_data<int, std::string>(1, 3, 193, "l"),
+                    test_data<int, std::string>(1, 4, 456, "h"),
+                    test_data<int, std::string>(1, 5, 534, "m")};
 
     B_tree<int, std::string, std::less<int>, 5> tree(std::less<int>(), nullptr, logger.get());
 
@@ -209,30 +182,26 @@ TEST(bTreePositiveTests, test2)
     logger->trace("bTreePositiveTests.test2 finished");
 }
 
-TEST(bTreePositiveTests, test3)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreePositiveTests, test3) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test3 started");
 
     std::vector<test_data<int, std::string>> expected_result =
-    {
-        test_data<int, std::string>(0, 0, 1, "a"),
-        test_data<int, std::string>(0, 1, 2, "b"),
-        test_data<int, std::string>(0, 2, 3, "d"),
-        test_data<int, std::string>(0, 3, 4, "e"),
-        test_data<int, std::string>(0, 4, 15, "c"),
-        test_data<int, std::string>(0, 5, 24, "g"),
-        test_data<int, std::string>(0, 6, 45, "k"),
-        test_data<int, std::string>(0, 7, 100, "f"),
-        test_data<int, std::string>(0, 8, 101, "j"),
-        test_data<int, std::string>(0, 9, 193, "l"),
-        test_data<int, std::string>(0, 10, 456, "h"),
-        test_data<int, std::string>(0, 11, 534, "m")
-    };
+            {
+                    test_data<int, std::string>(0, 0, 1, "a"),
+                    test_data<int, std::string>(0, 1, 2, "b"),
+                    test_data<int, std::string>(0, 2, 3, "d"),
+                    test_data<int, std::string>(0, 3, 4, "e"),
+                    test_data<int, std::string>(0, 4, 15, "c"),
+                    test_data<int, std::string>(0, 5, 24, "g"),
+                    test_data<int, std::string>(0, 6, 45, "k"),
+                    test_data<int, std::string>(0, 7, 100, "f"),
+                    test_data<int, std::string>(0, 8, 101, "j"),
+                    test_data<int, std::string>(0, 9, 193, "l"),
+                    test_data<int, std::string>(0, 10, 456, "h"),
+                    test_data<int, std::string>(0, 11, 534, "m")};
 
     B_tree<int, std::string, std::less<int>, 7> tree(std::less<int>(), nullptr, logger.get());
 
@@ -254,30 +223,26 @@ TEST(bTreePositiveTests, test3)
     logger->trace("bTreePositiveTests.test3 finished");
 }
 
-TEST(bTreePositiveTests, test4)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreePositiveTests, test4) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test4 started");
 
     std::vector<test_data<int, std::string>> expected_result =
-    {
-        test_data<int, std::string>(1, 0, 1, "a"),
-        test_data<int, std::string>(1, 1, 2, "b"),
-        test_data<int, std::string>(1, 2, 3, "d"),
-        test_data<int, std::string>(0, 0, 4, "e"),
-        test_data<int, std::string>(1, 0, 15, "c"),
-        test_data<int, std::string>(1, 1, 24, "g"),
-        test_data<int, std::string>(1, 2, 45, "k"),
-        test_data<int, std::string>(0, 1, 100, "f"),
-        test_data<int, std::string>(1, 0, 101, "j"),
-        test_data<int, std::string>(1, 1, 193, "l"),
-        test_data<int, std::string>(1, 2, 456, "h"),
-        test_data<int, std::string>(1, 3, 534, "m")
-    };
+            {
+                    test_data<int, std::string>(1, 0, 1, "a"),
+                    test_data<int, std::string>(1, 1, 2, "b"),
+                    test_data<int, std::string>(1, 2, 3, "d"),
+                    test_data<int, std::string>(0, 0, 4, "e"),
+                    test_data<int, std::string>(1, 0, 15, "c"),
+                    test_data<int, std::string>(1, 1, 24, "g"),
+                    test_data<int, std::string>(1, 2, 45, "k"),
+                    test_data<int, std::string>(0, 1, 100, "f"),
+                    test_data<int, std::string>(1, 0, 101, "j"),
+                    test_data<int, std::string>(1, 1, 193, "l"),
+                    test_data<int, std::string>(1, 2, 456, "h"),
+                    test_data<int, std::string>(1, 3, 534, "m")};
 
     B_tree<int, std::string, std::less<int>, 3> tree(std::less<int>(), nullptr, logger.get());
 
@@ -299,19 +264,16 @@ TEST(bTreePositiveTests, test4)
     logger->trace("bTreePositiveTests.test4 finished");
 }
 
-TEST(bTreePositiveTests, test5)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreePositiveTests, test5) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test5 started");
 
     std::vector<test_data<int, std::string>> expected_result =
-    {
+            {
 
-    };
+            };
 
     B_tree<int, std::string, std::less<int>, 2> tree(std::less<int>(), nullptr, logger.get());
 
@@ -321,8 +283,8 @@ TEST(bTreePositiveTests, test5)
     tree.emplace(3, std::string("d"));
     tree.emplace(4, std::string("e"));
 
-    auto first_disposed = tree.at(2);
-    auto second_disposed = tree.at(4);
+    //	auto first_disposed = tree.at(2);
+    //	auto second_disposed = tree.at(4);
 
     tree.erase(2);
     tree.erase(4);
@@ -332,26 +294,22 @@ TEST(bTreePositiveTests, test5)
     logger->trace("bTreePositiveTests.test5 finished");
 }
 
-TEST(bTreePositiveTests, test6)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreePositiveTests, test6) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test6 started");
 
     std::vector<test_data<int, std::string>> expected_result =
-    {
-        test_data<int, std::string>(1, 0, 2, "b"),
-        test_data<int, std::string>(1, 1, 3, "d"),
-        test_data<int, std::string>(1, 2, 4, "e"),
-        test_data<int, std::string>(0, 0, 15, "c"),
-        test_data<int, std::string>(1, 0, 45, "k"),
-        test_data<int, std::string>(1, 1, 101, "j"),
-        test_data<int, std::string>(1, 2, 456, "h"),
-        test_data<int, std::string>(1, 3, 534, "m")
-    };
+            {
+                    test_data<int, std::string>(1, 0, 2, "b"),
+                    test_data<int, std::string>(1, 1, 3, "d"),
+                    test_data<int, std::string>(1, 2, 4, "e"),
+                    test_data<int, std::string>(0, 0, 15, "c"),
+                    test_data<int, std::string>(1, 0, 45, "k"),
+                    test_data<int, std::string>(1, 1, 101, "j"),
+                    test_data<int, std::string>(1, 2, 456, "h"),
+                    test_data<int, std::string>(1, 3, 534, "m")};
 
     B_tree<int, std::string, std::less<int>, 4> tree(std::less<int>(), nullptr, logger.get());
 
@@ -388,26 +346,22 @@ TEST(bTreePositiveTests, test6)
     logger->trace("bTreePositiveTests.test6 finished");
 }
 
-TEST(bTreePositiveTests, test7)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreePositiveTests, test7) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test7 started");
 
     std::vector<std::string> expected_result =
-    {
-        "g",
-        "d",
-        "e",
-        " ",
-        "l",
-        "a",
-        "b",
-        "y"
-    };
+            {
+                    "g",
+                    "d",
+                    "e",
+                    " ",
+                    "l",
+                    "a",
+                    "b",
+                    "y"};
 
     B_tree<int, std::string, std::less<int>, 5> tree(std::less<int>(), nullptr, logger.get());
 
@@ -426,42 +380,37 @@ TEST(bTreePositiveTests, test7)
     tree.emplace(1000, std::move(std::string("y")));
 
     std::vector<std::string> actual_result =
-    {
-        tree.at(24),
-        tree.at(3),
-        tree.at(4),
-        tree.at(100),
-        tree.at(-193),
-        tree.at(1),
-        tree.at(2),
-        tree.at(1000)
-    };
+            {
+                    tree.at(24),
+                    tree.at(3),
+                    tree.at(4),
+                    tree.at(100),
+                    tree.at(-193),
+                    tree.at(1),
+                    tree.at(2),
+                    tree.at(1000)};
 
     EXPECT_TRUE(compare_obtain_results(expected_result, actual_result));
 
     logger->trace("bTreePositiveTests.test7 finished");
 }
 
-TEST(bTreePositiveTests, test8)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreePositiveTests, test8) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test8 started");
 
     std::vector<std::string> expected_result =
-    {
-        "y",
-        "l",
-        "a",
-        "g",
-        "k",
-        "b",
-        "c",
-        "h"
-    };
+            {
+                    "y",
+                    "l",
+                    "a",
+                    "g",
+                    "k",
+                    "b",
+                    "c",
+                    "h"};
 
     B_tree<int, std::string, std::less<int>, 4> tree(std::less<int>(), nullptr, logger.get());
 
@@ -480,40 +429,42 @@ TEST(bTreePositiveTests, test8)
     tree.emplace(1000, std::string("y"));
 
     std::vector<std::string> actual_result =
-    {
-        tree.at(1000),
-        tree.at(-193),
-        tree.at(1),
-        tree.at(24),
-        tree.at(-45),
-        tree.at(2),
-        tree.at(15),
-        tree.at(-456)
-    };
+            {
+                    tree.at(1000),
+                    tree.at(-193),
+                    tree.at(1),
+                    tree.at(24),
+                    tree.at(-45),
+                    tree.at(2),
+                    tree.at(15),
+                    tree.at(-456)};
 
     EXPECT_TRUE(compare_obtain_results(expected_result, actual_result));
 
     logger->trace("bTreePositiveTests.test8 finished");
 }
 
-TEST(bTreePositiveTests, test9)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreePositiveTests, test9) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreePositiveTests.test9 started");
 
     std::vector<B_tree<int, std::string>::value_type> expected_result =
-    {
-        { 4, "e" },
-        { 15, "c" },
-        { 24, "g" },
-        { 45, "k" },
-        { 100, "f" },
-        { 101, "j" },
-    };
+            {
+                    {1, "a"},
+                    {2, "b"},
+                    {3, "d"},
+                    {4, "e"},
+                    {15, "c"},
+                    {24, "g"},
+                    {45, "k"},
+                    {100, "f"},
+                    {101, "j"},
+                    {193, "l"},
+                    {456, "h"},
+                    {534, "m"},
+            };
 
     B_tree<int, std::string, std::less<int>, 5> tree(std::less<int>(), nullptr, logger.get());
 
@@ -530,8 +481,8 @@ TEST(bTreePositiveTests, test9)
     tree.emplace(193, std::string("l"));
     tree.emplace(534, std::string("m"));
 
-    auto b = tree.begin();
-    auto e = tree.end();
+    auto b = tree.cbegin();
+    auto e = tree.cend();
     std::vector<decltype(tree)::value_type> actual_result(b, e);
 
     EXPECT_TRUE(compare_obtain_results(expected_result, actual_result));
@@ -539,12 +490,9 @@ TEST(bTreePositiveTests, test9)
     logger->trace("bTreePositiveTests.test9 finished");
 }
 
-TEST(bTreeNegativeTests, test1)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreeNegativeTests, test1) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreeNegativeTests.test1 started");
 
@@ -561,12 +509,9 @@ TEST(bTreeNegativeTests, test1)
     logger->trace("bTreeNegativeTests.test1 finished");
 }
 
-TEST(bTreeNegativeTests, test3)
-{
-    std::unique_ptr<logger> logger( create_logger(std::vector<std::pair<std::string, logger::severity>>
-                                                          {
-                                                                  { "b_tree_tests_logs.txt", logger::severity::trace }
-                                                          }));
+TEST(bTreeNegativeTests, test3) {
+    std::unique_ptr<logger> logger(create_logger(std::vector<std::pair<std::string, logger::severity>>{
+            {"b_tree_tests_logs.txt", logger::severity::trace}}));
 
     logger->trace("bTreeNegativeTests.test3 started");
 
@@ -592,9 +537,8 @@ TEST(bTreeNegativeTests, test3)
 }
 
 int main(
-    int argc,
-    char **argv)
-{
+        int argc,
+        char **argv) {
     testing::InitGoogleTest(&argc, argv);
 
     return RUN_ALL_TESTS();

@@ -8,7 +8,7 @@
 #include "client_logger.h"
 
 class client_logger_builder final:
-    public logger_builder
+        public logger_builder
 {
 private:
 
@@ -23,31 +23,31 @@ public:
     client_logger_builder() : _format("%m"){};
 
     client_logger_builder(
-        client_logger_builder const &other) =delete;
+            client_logger_builder const &other) =delete;
 
     client_logger_builder &operator=(
-        client_logger_builder const &other) =delete;
+            client_logger_builder const &other) =delete;
 
     client_logger_builder(
-        client_logger_builder &&other) noexcept =default;
+            client_logger_builder &&other) noexcept =default;
 
     client_logger_builder &operator=(
-        client_logger_builder &&other) noexcept =default;
+            client_logger_builder &&other) noexcept =default;
 
     ~client_logger_builder() noexcept override =default;
 
 public:
 
     logger_builder& add_file_stream(
-        std::string const &stream_file_path,
-        logger::severity severity) & override;
+            std::string const &stream_file_path,
+            logger::severity severity) & override;
 
     logger_builder& add_console_stream(
-        logger::severity severity) & override;
+            logger::severity severity) & override;
 
     logger_builder& transform_with_configuration(
-        std::string const &configuration_file_path,
-        std::string const &configuration_path) & override;
+            std::string const &configuration_file_path,
+            std::string const &configuration_path) & override;
 
     logger_builder& set_format(const std::string& format) & override;
 
